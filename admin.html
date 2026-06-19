@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palliz - Admin Console</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f3f4f6; } </style>
+</head>
+<body class="p-6">
+    <div class="max-w-xl mx-auto space-y-6">
+        <div class="bg-gray-950 text-white p-6 rounded-3xl shadow-xl flex justify-between items-center">
+            <div>
+                <h1 class="text-lg font-[900] tracking-[0.25em] text-white" style="font-family: 'Inter', sans-serif;">PALLIZ.ADMIN</h1>
+                <p class="text-[10px] text-gray-400 mt-1">Product Catalog Engine Control</p>
+            </div>
+            <i class="fa-solid fa-fingerprint text-xl text-pink-500"></i>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl shadow-sm">
+            <h3 id="form-title" class="font-extrabold text-gray-900 mb-4 text-xs uppercase tracking-wider">Publish Outfit</h3>
+            <form id="product-form" class="space-y-4" onsubmit="handleProductSubmit(event)">
+                <input type="hidden" id="edit-id">
+                <input type="text" id="p-name" placeholder="Dress Title" required class="w-full border p-3 rounded-xl text-xs">
+                <select id="p-cat" class="w-full border p-3 rounded-xl text-xs bg-white">
+                    <option value="Kurti">Kurti Set</option><option value="Salwar">Salwar Kameez</option><option value="Saree">Premium Saree</option>
+                </select>
+                <input type="number" id="p-price" placeholder="Price (BDT)" required class="w-full border p-3 rounded-xl text-xs">
+                <input type="url" id="p-image" placeholder="Image URL (Direct link)" required class="w-full border p-3 rounded-xl text-xs">
+                <textarea id="p-desc" placeholder="Product Details" rows="2" required class="w-full border p-3 rounded-xl text-xs"></textarea>
+                <button type="submit" id="submit-btn" class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold text-xs uppercase cursor-pointer">Save Item</button>
+            </form>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl shadow-sm">
+            <h3 class="font-extrabold text-gray-900 mb-3 text-xs uppercase tracking-wider">Live Inventory</h3>
+            <div id="admin-product-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+        </div>
+    </div>
+
+    <script>
+        let products = JSON.parse(localStorage.getItem('palliz_products_v2')) || [];
+        function renderAdminList() {
+            const container = document.getElementById('admin-product-list');
+            if(products.length === 0) { container.innerHTML = `<p class="text-gray-400 text-xs text-center py-4">No outfits uploaded.</p>`; return; }
+            container.innerHTML = products.map((p) => `
+                <div class="flex items-center justify-between text-xs py-2 bg-gray-50 px-3 rounded-xl border">
+                    <div class="flex items-center gap-3">
+                        <img src="${p.image}" class="w-8 h-8 object-cover rounded-lg border">
+                        <div><span class="font-bold text-gray-800 block">${p.name}</span><span class="text-[10px] text-gray-400">৳${p.price} | ${p.category}</span></div>
+                    </div>
+                    <div class="flex gap-1">
+                        <button onclick="editProduct(${p.id})" class="text-blue-500 w-7 h-7 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteProduct(${p.id})" class="text-red-500 w-7 h-7 rounded-lg"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                </div>
+            `).reverse().join('');
+        }
+
+        function handleProductSubmit(e) {
+            e.preventDefault(); const id = document.getElementById('edit-id').value;
+            const name = document.getElementById('p-name').value; const category = document.getElementById('p-cat').value;
+            const price = document.getElementById('p-price').value; const image = document.getElementById('p-image').value;
+            const desc = document.getElementById('p-desc').value;
+
+            if(id) {
+                const idx = products.findIndex(p => p.id === parseInt(id));
+                if(idx !== -1) products[idx] = { id: parseInt(id), name, category, price, image, desc };
+            } else { products.push({ id: Date.now(), name, category, price, image, desc }); }
+
+            localStorage.setItem('palliz_products_v2', JSON.stringify(products));
+            document.getElementById('product-form').reset(); document.getElementById('edit-id').value = "";
+            renderAdminList(); alert("সফলভাবে প্রোডাক্ট সেভ হয়েছে!");
+        }
+
+        function editProduct(id) {
+            const p = products.find(prod => prod.id === id); if(!p) return;
+            document.getElementById('form-title').innerText = "Edit Outfit Details";
+            document.getElementById('edit-id').value = p.id; document.getElementById('p-name').value = p.name;
+            document.getElementById('p-cat').value = p.category; document.getElementById('p-price').value = p.price;
+            document.getElementById('p-image').value = p.image; document.getElementById('p-desc').value = p.desc || "";
+        }
+
+        function deleteProduct(id) {
+            if(confirm("ডিলিট করতে চান?")) { products = products.filter(p => p.id !== id); localStorage.setItem('palliz_products_v2', JSON.stringify(products)); renderAdminList(); }
+        }
+        
+        window.onload = function() {
+            let pass = prompt("Palliz Security Code:");
+            if(pass === "1234") { renderAdminList(); } else { alert("Wrong Password!"); document.body.innerHTML = ""; }
+        }
+    </script>
+</body>
+</html>
