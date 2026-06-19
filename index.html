@@ -1,1 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palliz - Premium Outfits</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #faf9f6; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="text-[#111111] antialiased">
 
+    <!-- PACKLY NAVIGATION -->
+    <nav class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-100 z-40 px-6 py-4 flex justify-between items-center">
+        <div class="text-xl font-[900] tracking-[0.3em] text-gray-950" style="font-family: 'Inter', sans-serif;">PALLIZ.</div>
+        <div class="text-[9px] text-gray-400 font-extrabold tracking-[0.25em] uppercase" style="font-family: 'Inter', sans-serif;">[ STUDIO ]</div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <!-- CATEGORY FILTERS -->
+        <section class="mb-6">
+            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                <button onclick="filterCategory('All')" id="cat-All" class="cat-pill bg-gray-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer">All Outfits</button>
+                <button onclick="filterCategory('Kurti')" id="cat-Kurti" class="cat-pill bg-white text-gray-600 border border-gray-100 px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer hover:border-gray-300">Kurti Set</button>
+                <button onclick="filterCategory('Salwar')" id="cat-Salwar" class="cat-pill bg-white text-gray-600 border border-gray-100 px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer hover:border-gray-300">Salwar Kameez</button>
+                <button onclick="filterCategory('Saree')" id="cat-Saree" class="cat-pill bg-white text-gray-600 border border-gray-100 px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer hover:border-gray-300">Premium Saree</button>
+            </div>
+        </section>
+
+        <!-- PRODUCT GRID -->
+        <section class="mb-12">
+            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"></div>
+        </section>
+
+        <!-- CHECKOUT MODAL WINDOW -->
+        <section id="order-section" class="bg-white p-6 rounded-3xl border border-gray-200/60 shadow-2xl hidden max-w-xl mx-auto border-t-4 border-t-gray-900">
+            <div class="flex justify-between items-start mb-4 pb-2 border-b">
+                <div>
+                    <h4 class="font-black text-gray-900 text-base" id="sel-prod-name"></h4>
+                    <p class="text-xs text-gray-400 mt-0.5" id="sel-prod-cat"></p>
+                </div>
+                <button onclick="document.getElementById('order-section').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-lg cursor-pointer"><i class="fa-solid fa-circle-xmark"></i></button>
+            </div>
+            
+            <form id="order-form" class="space-y-4" onsubmit="handleOrderSubmit(event)">
+                <input type="hidden" id="ord-name"><input type="hidden" id="ord-price">
+                <input type="text" id="c-name" required placeholder="আপনার নাম (Full Name)" class="w-full bg-gray-50 border border-gray-100 p-3.5 rounded-xl text-xs focus:bg-white focus:outline-gray-900 font-medium">
+                <input type="tel" id="c-phone" required placeholder="মোবাইল নম্বর (Phone Number)" class="w-full bg-gray-50 border border-gray-100 p-3.5 rounded-xl text-xs focus:bg-white focus:outline-gray-900 font-medium">
+                
+                <div>
+                    <label class="block text-[10px] font-extrabold uppercase tracking-widest text-gray-400 mb-1.5">Select Size</label>
+                    <div class="flex gap-2">
+                        <label class="flex-1 text-center border border-gray-200 py-2 rounded-xl text-xs font-bold cursor-pointer bg-gray-50" id="size-label-M"><input type="radio" name="prod-size" value="M" checked class="hidden">M (38)</label>
+                        <label class="flex-1 text-center border border-gray-200 py-2 rounded-xl text-xs font-bold cursor-pointer bg-gray-50" id="size-label-L"><input type="radio" name="prod-size" value="L" class="hidden">L (40)</label>
+                        <label class="flex-1 text-center border border-gray-200 py-2 rounded-xl text-xs font-bold cursor-pointer bg-gray-50" id="size-label-XL"><input type="radio" name="prod-size" value="XL" class="hidden">XL (42)</label>
+                        <label class="flex-1 text-center border border-gray-200 py-2 rounded-xl text-xs font-bold cursor-pointer bg-gray-50" id="size-label-XXL"><input type="radio" name="prod-size" value="XXL" class="hidden">XXL (44)</label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="border border-gray-200 p-3 rounded-xl flex items-center gap-2 cursor-pointer bg-white">
+                        <input type="radio" name="delivery-zone" value="inside" checked onchange="updateTotalBill()" class="accent-gray-900">
+                        <div class="text-[11px] font-bold text-gray-700">ঢাকার ভেতরে <span class="block text-[9px] text-gray-400 font-normal">+ ৳৬০</span></div>
+                    </label>
+                    <label class="border border-gray-200 p-3 rounded-xl flex items-center gap-2 cursor-pointer bg-white">
+                        <input type="radio" name="delivery-zone" value="outside" onchange="updateTotalBill()" class="accent-gray-900">
+                        <div class="text-[11px] font-bold text-gray-700">ঢাকার বাইরে <span class="block text-[9px] text-gray-400 font-normal">+ ৳১২০</span></div>
+                    </label>
+                </div>
+
+                <textarea id="c-address" required placeholder="পূর্ণাঙ্গ ঠিকানা" rows="2" class="w-full bg-gray-50 p-3.5 rounded-xl text-xs focus:bg-white focus:outline-gray-900"></textarea>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="selectPayment('COD')" id="pay-COD" class="border-2 border-gray-900 bg-gray-900 text-white py-2.5 rounded-xl font-bold text-[11px]">COD</button>
+                    <button type="button" onclick="selectPayment('bKash')" id="pay-bKash" class="border border-gray-200 bg-white text-gray-700 py-2.5 rounded-xl font-bold text-[11px]">bKash</button>
+                    <button type="button" onclick="selectPayment('Nagad')" id="pay-Nagad" class="border border-gray-200 bg-white text-gray-700 py-2.5 rounded-xl font-bold text-[11px]">Nagad</button>
+                </div>
+
+                <div id="wallet-info-box" class="bg-gray-50 p-3 rounded-xl border hidden space-y-2 text-center">
+                    <p class="text-[11px]">আমাদের <span id="wallet-type-txt"></span> পার্সোনাল নম্বরে টাকা পাঠান: <b class="text-gray-900 block font-black text-sm" id="merchant-num-txt"></b></p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="tel" id="sender-num" placeholder="নম্বর" class="w-full bg-white border p-2 rounded-lg text-xs">
+                        <input type="text" id="trx-id" placeholder="TrxID" class="w-full bg-white border p-2 rounded-lg text-xs">
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-2xl border flex justify-between items-center font-bold">
+                    <span class="text-xs text-gray-500">Total Bill:</span>
+                    <span id="invoice-total-bill" class="text-lg text-gray-900">৳ 0</span>
+                </div>
+                <button type="submit" id="submit-btn" class="w-full bg-gray-900 text-white py-3.5 rounded-xl font-extrabold uppercase text-xs tracking-widest hover:bg-gray-800 transition">Place Order</button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        // ⚠️ আপনার জেনারেট হওয়া অ্যাপস স্ক্রিপ্ট ওয়েব ইউআরএল এখানে বসান
+        const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycby3KfnMdJDOjlqbs_5Mo89kTo3vIgWtHaYXOzpXVd0vP09085zGaOvZ9wAt4avNoY9t/exec";
+        const BKASH_NUMBER = "017XXXXXXXX"; const NAGAD_NUMBER = "018XXXXXXXX"; 
+
+        let currentSelectedMethod = 'COD'; let currentBasePrice = 0; let activeCategory = 'All';
+        let products = JSON.parse(localStorage.getItem('palliz_products_v2')) || [];
+
+        function filterCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-pill').forEach(btn => btn.className = "cat-pill bg-white text-gray-600 border border-gray-100 px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer hover:border-gray-300");
+            document.getElementById('cat-' + cat).className = "cat-pill bg-gray-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer shadow-sm";
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const gridContainer = document.getElementById('product-grid');
+            const filtered = activeCategory === 'All' ? products : products.filter(p => p.category === activeCategory);
+            if(filtered.length === 0) { gridContainer.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 text-xs border border-dashed rounded-2xl bg-white">No products found.</div>`; return; }
+            
+            gridContainer.innerHTML = filtered.map((p) => `
+                <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden flex flex-col justify-between h-full shadow-xs">
+                    <div>
+                        <div class="h-48 md:h-56 w-full bg-gray-50"><img src="${p.image}" class="h-full w-full object-cover"></div>
+                        <div class="p-4">
+                            <span class="text-[9px] uppercase font-extrabold tracking-widest text-pink-500 block mb-0.5">${p.category}</span>
+                            <h4 class="font-bold text-xs md:text-sm text-gray-900 line-clamp-1">${p.name}</h4>
+                            <p class="text-[10px] text-gray-400 mt-1 line-clamp-2">${p.desc || ''}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0">
+                        <div class="border-t border-gray-50 pt-3 flex justify-between items-center">
+                            <span class="text-gray-900 font-extrabold text-xs md:text-sm">৳${p.price}</span>
+                            <button onclick="selectProductById(${p.id})" class="bg-gray-900 text-white text-[10px] font-extrabold px-4 py-2 rounded-xl uppercase tracking-wider hover:bg-pink-600 transition cursor-pointer">Order</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectProductById(id) {
+            const p = products.find(prod => prod.id === id); if(!p) return;
+            currentBasePrice = parseInt(p.price);
+            document.getElementById('sel-prod-name').innerText = p.name;
+            document.getElementById('sel-prod-cat').innerText = p.category + " | " + p.desc;
+            document.getElementById('ord-name').value = p.name; document.getElementById('ord-price').value = p.price;
+            document.getElementById('order-section').classList.remove('hidden');
+            updateTotalBill();
+            document.getElementById('order-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateTotalBill() {
+            const zone = document.querySelector('input[name="delivery-zone"]:checked').value;
+            const shipping = (zone === 'inside') ? 60 : 120;
+            document.getElementById('invoice-total-bill').innerText = "৳ " + (currentBasePrice + shipping);
+        }
+
+        function selectPayment(method) {
+            currentSelectedMethod = method;
+            ['COD', 'bKash', 'Nagad'].forEach(m => document.getElementById('pay-' + m).className = "border border-gray-200 bg-white text-gray-700 py-2.5 rounded-xl font-bold text-[11px]");
+            document.getElementById('pay-' + method).className = "border-2 border-gray-900 bg-gray-900 text-white py-2.5 rounded-xl font-bold text-[11px]";
+            const walletBox = document.getElementById('wallet-info-box');
+            if (method === 'COD') { walletBox.classList.add('hidden'); } 
+            else {
+                walletBox.classList.remove('hidden'); document.getElementById('wallet-type-txt').innerText = method;
+                document.getElementById('merchant-num-txt').innerText = (method === 'bKash') ? BKASH_NUMBER : NAGAD_NUMBER;
+            }
+        }
+
+        function handleOrderSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn'); btn.innerText = "Processing..."; btn.disabled = true;
+            const zone = document.querySelector('input[name="delivery-zone"]:checked').value;
+            const shipping = (zone === 'inside') ? 60 : 120;
+            const size = document.querySelector('input[name="prod-size"]:checked').value;
+
+            const orderData = {
+                customerName: document.getElementById('c-name').value, phone: document.getElementById('c-phone').value,
+                address: document.getElementById('c-address').value + ` [Size: ${size}]`, productName: document.getElementById('ord-name').value,
+                amount: currentBasePrice + shipping, paymentMethod: currentSelectedMethod,
+                senderNumber: document.getElementById('sender-num').value || "COD", trxId: document.getElementById('trx-id').value || "COD"
+            };
+
+            fetch(GOOGLE_SHEET_API_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(orderData) })
+            .then(() => {
+                alert("🎉 অর্ডারটি সফল হয়েছে এবং এক্সেল শিটে জমা হয়েছে!");
+                document.getElementById('order-form').reset(); document.getElementById('order-section').classList.add('hidden');
+                selectPayment('COD'); btn.innerText = "Place Order"; btn.disabled = false;
+            });
+        }
+
+        document.addEventListener('change', function(e) {
+            if(e.target.name === 'prod-size') {
+                ['M', 'L', 'XL', 'XXL'].forEach(s => document.getElementById('size-label-' + s).className = "flex-1 text-center border border-gray-200 py-2 rounded-xl text-xs font-bold bg-gray-50");
+                document.getElementById('size-label-' + e.target.value).className = "flex-1 text-center border-2 border-gray-900 py-2 rounded-xl text-xs font-black bg-white text-gray-900";
+            }
+        });
+
+        window.onload = function() { renderProducts(); selectPayment('COD'); };
+    </script>
+</body>
+</html>
